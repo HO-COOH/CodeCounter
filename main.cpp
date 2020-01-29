@@ -6,6 +6,8 @@
 //-d: detailed file list
 std::array<std::pair<const std::string, bool>, 3> options{ std::pair{"-d", true}, {"-r", true}, {"-h", false} };
 
+/*printing infos of one file record*/
+///file_info: the file record to print
 std::ostream& operator<<(std::ostream& os, const Source_file& file_info)
 {
 	os << (file_info.file_name.size() > 17 ? file_info.file_name.substr(0, 17) + "..." : file_info.file_name) << (file_info.file_name.size() < 8 ? "\t\t\t" : file_info.file_name.size() < 16 ? "\t\t" : "\t")
@@ -14,6 +16,9 @@ std::ostream& operator<<(std::ostream& os, const Source_file& file_info)
 	return os;
 }
 
+/*Read the c-style comment & code*/
+///file: the input file stream
+///result: the result struct to be written to
 void read_c(std::ifstream& file, Source_file& result)
 {
 	std::string line;
@@ -59,7 +64,10 @@ void read_c(std::ifstream& file, Source_file& result)
 	}
 }
 
-/*Read the code inside a file*/
+//!!!!!!!!!!!!!!further language support add here!!!!!!!!!!!!!!!!!!!!
+
+
+/*Call different code statistic methods according to its file extension*/
 ///file_name: the path of the file
 ///return a struct containing the info
 Source_file read_source_file(const std::filesystem::path& file_path)
@@ -80,8 +88,10 @@ Source_file read_source_file(const std::filesystem::path& file_path)
 		{
 		case Language::C:
 		case Language::Cpp:
+		case Language::Java:
 			read_c(file, result);
 			break;
+		//!!!!!!!!!!!!!!further language support add here!!!!!!!!!!!!!!!!!!!!
 		default:
 			break;
 		}
@@ -95,6 +105,8 @@ void print_line()
 	std::cout << "-------------------------------------------------------------------------------\n";
 }
 
+/*print detailed info of all the files found in [result] using: std::ostream& operator<<(std::ostream& os, const Source_file& file_info)*/
+///result: all records of the files
 void print_files(const std::vector<Source_file>& result)
 {
 	if (result.empty())
@@ -110,6 +122,8 @@ void print_files(const std::vector<Source_file>& result)
 	print_line();
 }
 
+/*print infos per language used*/
+///result: all records of the files
 void print_percentage(const std::vector<Source_file>& result)
 {
 	if (result.empty())
@@ -158,9 +172,12 @@ void print_help()
 	std::cout << "Usage:\n"
 		<< "-d:\t Print detailed file lists\n"
 		<< "-r:\t Recursively read all files inside this directory\n"
-		<< "-h:\t Print this help manual\n";
+		<< "-h:\t Print this help manual\n"
+		<< "Currently suppoted languages: C, C++, Java, Plaintext\n";
 }
 
+/*Iterate through all the files found by directory_iter*/
+///directory_iter: can be either std::directory_iterator or std::recursive_directory_iterator
 template<typename Dir_iter>
 void process(Dir_iter&& directory_iter)
 {
